@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MélaWhale ✦">
+<meta name="theme-color" content="#0d0a0f">
+<title>MélaWhale ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0d0a0f;
+  --bg2: #130e18;
+  --bg3: #1a1220;
+  --card: #17111f;
+  --card2: #1f1628;
+  --border: rgba(236,72,153,0.13);
+  --border2: rgba(236,72,153,0.22);
+  --rose: #ec4899;
+  --rose-dim: rgba(236,72,153,0.15);
+  --rose-glow: rgba(236,72,153,0.25);
+  --pink: #f472b6;
+  --pink-pale: rgba(244,114,182,0.08);
+  --mauve: #a855f7;
+  --mauve-dim: rgba(168,85,247,0.12);
+  --gold: #f59e0b;
+  --gold-dim: rgba(245,158,11,0.12);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.10);
+  --text: #f5e6f0;
+  --text-mid: #9d7aaa;
+  --text-soft: #5c4068;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ─── NOISE TEXTURE ─── */
+body::before {
+  content:'';
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 55% 45% at 8% 12%, rgba(236,72,153,0.09) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 35% at 92% 88%, rgba(168,85,247,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 25% at 50% 50%, rgba(236,72,153,0.04) 0%, transparent 70%);
+}
+
+/* ═══════════════════════════════
+   SETUP SCREEN
+═══════════════════════════════ */
+#setup {
+  position:fixed; inset:0; z-index:900;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--bg);
+  padding:20px;
+}
+
+.setup-card {
+  width:100%; max-width:460px;
+  background: var(--card);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:36px 30px;
+  box-shadow: 0 0 80px rgba(236,72,153,0.08);
+}
+
+.setup-logo {
+  font-family:'Playfair Display',serif;
+  font-size:32px; font-weight:700;
+  background:linear-gradient(135deg, var(--rose), var(--mauve));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:4px;
+}
+.setup-sub {
+  font-size:11px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--text-soft); margin-bottom:30px;
+}
+
+.setup-step {
+  display:none;
+}
+.setup-step.active { display:block; }
+
+.step-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--rose-dim); border:1px solid var(--border2);
+  border-radius:20px; padding:4px 12px;
+  font-size:10px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--rose); margin-bottom:14px;
+}
+
+.setup-title { font-size:18px; font-weight:700; margin-bottom:6px; }
+.setup-desc { font-size:12px; color:var(--text-mid); margin-bottom:22px; line-height:1.6; }
+
+.hint {
+  background:var(--pink-pale); border-left:3px solid var(--rose);
+  border-radius:0 10px 10px 0; padding:10px 14px;
+  font-size:11px; color:var(--text-mid); margin-bottom:16px; line-height:1.6;
+}
+.hint a { color:var(--rose); text-decoration:none; }
+
+.fl { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+.fl2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+
+label.lbl {
+  font-size:9px; letter-spacing:2.5px; text-transform:uppercase;
+  color:var(--text-soft); display:block; margin-bottom:5px;
+}
+
+input.inp {
+  width:100%; padding:11px 14px;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:12px; font-size:13px;
+  color:var(--text); font-family:'Inter',sans-serif; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+input.inp:focus {
+  border-color:var(--rose);
+  box-shadow:0 0 0 3px var(--rose-dim);
+}
+input.inp::placeholder { color:var(--text-soft); }
+
+.btn-primary {
+  width:100%; padding:13px;
+  background:linear-gradient(135deg, var(--rose), var(--mauve));
+  border:none; border-radius:14px; color:white;
+  font-size:13px; font-weight:700; font-family:'Inter',sans-serif;
+  cursor:pointer; letter-spacing:.5px;
+  box-shadow:0 6px 28px rgba(236,72,153,0.3);
+  transition:transform .15s, box-shadow .15s;
+}
+.btn-primary:active { transform:scale(.98); }
+
+.btn-ghost {
+  width:100%; padding:11px;
+  background:transparent; border:1px solid var(--border);
+  border-radius:14px; color:var(--text-mid);
+  font-size:12px; font-family:'Inter',sans-serif; cursor:pointer;
+  margin-top:8px; transition:border-color .2s;
+}
+.btn-ghost:hover { border-color:var(--border2); }
+
+.err { font-size:11px; color:var(--red); margin-top:8px; min-height:16px; }
+
+/* progress dots */
+.dots { display:flex; gap:6px; justify-content:center; margin-top:20px; }
+.dot { width:6px; height:6px; border-radius:50%; background:var(--text-soft); transition:all .3s; }
+.dot.on { background:var(--rose); width:18px; border-radius:3px; }
+
+/* ═══════════════════════════════
+   LOGIN
+═══════════════════════════════ */
+#login {
+  position:fixed; inset:0; z-index:800;
+  display:none; align-items:center; justify-content:center;
+  background:var(--bg); padding:20px;
+}
+
+.login-card {
+  width:100%; max-width:360px;
+  background:var(--card); border:1px solid var(--border2);
+  border-radius:24px; padding:40px 28px; text-align:center;
+  box-shadow:0 0 80px rgba(236,72,153,0.08);
+}
+
+.login-logo {
+  font-family:'Playfair Display',serif; font-size:38px; font-weight:700;
+  background:linear-gradient(135deg, var(--rose), var(--mauve));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:4px;
+}
+.login-tagline {
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:13px; color:var(--text-soft); letter-spacing:2px; margin-bottom:32px;
+}
+.login-inp {
+  width:100%; padding:13px 16px; margin-bottom:14px;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:14px; font-size:15px; color:var(--text);
+  font-family:'Inter',sans-serif; outline:none; text-align:center;
+  letter-spacing:3px; transition:border-color .2s, box-shadow .2s;
+}
+.login-inp:focus { border-color:var(--rose); box-shadow:0 0 0 3px var(--rose-dim); }
+
+/* ═══════════════════════════════
+   APP
+═══════════════════════════════ */
+#app {
+  display:none; min-height:100dvh;
+  padding-bottom:calc(68px + var(--safe-bottom));
+  position:relative; z-index:1;
+}
+
+/* ─── HEADER ─── */
+.hdr {
+  position:sticky; top:0; z-index:50;
+  padding:calc(var(--safe-top) + 14px) 18px 14px;
+  background:rgba(13,10,15,0.9);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.hdr-brand {
+  font-family:'Playfair Display',serif; font-size:20px; font-weight:700;
+  background:linear-gradient(135deg, var(--rose), var(--mauve));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.hdr-right { display:flex; align-items:center; gap:8px; }
+
+.period-sel {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:6px 12px;
+  font-size:11px; color:var(--text-mid); font-family:'Inter',sans-serif;
+  display:flex; align-items:center; gap:6px;
+}
+.period-sel select {
+  background:transparent; border:none; color:var(--text-mid);
+  font-family:'Inter',sans-serif; font-size:11px; outline:none; cursor:pointer;
+}
+.period-sel select option { background:var(--card); }
+
+.sync-btn {
+  width:36px; height:36px; border-radius:50%;
+  background:linear-gradient(135deg,var(--rose),var(--mauve));
+  border:none; cursor:pointer; color:white; font-size:15px;
+  box-shadow:0 4px 14px rgba(236,72,153,0.3);
+  display:flex; align-items:center; justify-content:center;
+  transition:box-shadow .2s;
+}
+.sync-btn.spin { animation:spin .9s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* sync status bar */
+.sync-bar {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 18px; font-size:11px; color:var(--text-soft);
+  border-bottom:1px solid var(--border);
+  background:rgba(13,10,15,0.5);
+}
+.dot-live { width:5px; height:5px; border-radius:50%; background:var(--green); animation:blink 2s infinite; }
+.dot-warn { width:5px; height:5px; border-radius:50%; background:var(--gold); }
+.dot-err  { width:5px; height:5px; border-radius:50%; background:var(--red); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ─── CONTENT ─── */
+.content { padding:16px; display:flex; flex-direction:column; gap:14px; }
+
+/* ─── ALERT BANNER ─── */
+.alert {
+  background:linear-gradient(135deg,rgba(236,72,153,0.08),rgba(168,85,247,0.06));
+  border:1px solid var(--border);
+  border-radius:14px; padding:11px 14px;
+  font-size:12px; color:var(--text-mid);
+  display:flex; align-items:flex-start; gap:9px; line-height:1.5;
+}
+
+/* ─── KPI GRID ─── */
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+.kpi {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:16px;
+  position:relative; overflow:hidden;
+  animation:fadeUp .45s ease both;
+  transition:border-color .2s;
+}
+.kpi:hover { border-color:var(--border2); }
+
+.kpi:nth-child(1){animation-delay:.04s}
+.kpi:nth-child(2){animation-delay:.08s}
+.kpi:nth-child(3){animation-delay:.12s}
+.kpi:nth-child(4){animation-delay:.16s}
+.kpi:nth-child(5){animation-delay:.20s}
+.kpi:nth-child(6){animation-delay:.24s}
+.kpi:nth-child(7){animation-delay:.28s}
+.kpi:nth-child(8){animation-delay:.32s}
+
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)}
+}
+
+.kpi-source {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:8px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-soft); margin-bottom:8px;
+  padding:2px 7px; border-radius:6px;
+}
+.src-shopify { background:rgba(149,191,71,0.08); color:#95bf47; }
+.src-meta    { background:rgba(24,119,242,0.08); color:#4a9af4; }
+.src-calc    { background:var(--rose-dim); color:var(--rose); }
+
+.kpi-label {
+  font-size:9px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-soft); margin-bottom:6px;
+}
+
+.kpi-value {
+  font-family:'Inter',sans-serif; font-variant-numeric:tabular-nums;
+  font-size:26px; font-weight:700;
+  color:var(--text); line-height:1; margin-bottom:5px;
+}
+.kpi-value.big { font-size:30px; }
+
+.kpi-meta { font-size:11px; color:var(--text-soft); }
+.kpi-meta .up   { color:var(--green); }
+.kpi-meta .down { color:var(--red); }
+.kpi-meta .neu  { color:var(--gold); }
+
+.kpi-glow {
+  position:absolute; bottom:-20px; right:-10px;
+  font-size:52px; opacity:.05; pointer-events:none; user-select:none;
+}
+
+/* wide KPI (full width) */
+.kpi.wide { grid-column:1/-1; }
+
+/* ─── P&L HERO ─── */
+.pl-hero {
+  background:linear-gradient(135deg, #5b0a35 0%, #7c1050 40%, #4a0272 100%);
+  border-radius:22px; padding:22px;
+  border:1px solid rgba(236,72,153,0.25);
+  box-shadow:0 20px 60px rgba(92,10,53,0.4);
+  position:relative; overflow:hidden;
+}
+.pl-hero::before {
+  content:'';
+  position:absolute; top:-60px; right:-60px;
+  width:200px; height:200px;
+  background:rgba(255,255,255,0.04); border-radius:50%;
+}
+.pl-hero::after {
+  content:'✦';
+  position:absolute; bottom:10px; right:18px;
+  font-size:70px; color:rgba(255,255,255,0.04);
+}
+
+.pl-tag {
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:12px; color:rgba(255,255,255,.5); letter-spacing:1px; margin-bottom:4px;
+}
+.pl-amount {
+  font-family:'Inter',sans-serif; font-variant-numeric:tabular-nums; font-size:44px; font-weight:700;
+  color:white; line-height:1; margin-bottom:4px;
+}
+.pl-margin { font-size:12px; color:rgba(255,255,255,.5); margin-bottom:18px; }
+.pl-margin b { color:white; }
+
+.pl-cells {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
+  background:rgba(255,255,255,.1); border-radius:14px; overflow:hidden;
+}
+.pl-cell { background:rgba(0,0,0,.15); padding:12px; }
+.pl-cell-lbl { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:3px; }
+.pl-cell-val { font-family:'Inter',sans-serif; font-variant-numeric:tabular-nums; font-size:16px; font-weight:700; color:white; }
+
+/* ─── SECTION TITLE ─── */
+.sec-title {
+  font-family:'Playfair Display',serif; font-size:17px;
+  color:var(--text); margin-bottom:11px;
+}
+.sec-title em { font-style:italic; color:var(--rose); }
+
+/* ─── CHART ─── */
+.chart-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:18px;
+}
+.chart-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.ctab {
+  font-size:10px; padding:5px 11px; border-radius:20px;
+  border:1px solid var(--border); background:transparent;
+  color:var(--text-soft); cursor:pointer;
+  font-family:'Inter',sans-serif; transition:all .2s;
+  display:flex; align-items:center; gap:5px;
+}
+.ctab .ctab-dot { width:5px; height:5px; border-radius:50%; }
+.ctab.active {
+  background:linear-gradient(135deg,var(--rose),var(--mauve));
+  border-color:transparent; color:white;
+  box-shadow:0 3px 12px rgba(236,72,153,.25);
+}
+canvas { width:100%!important; height:170px!important; }
+
+/* ─── COSTS ─── */
+.cost-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid rgba(236,72,153,.06);
+}
+.cost-row:last-child { border-bottom:none; }
+.cost-l { display:flex; align-items:center; gap:9px; }
+.cost-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.cost-name { font-size:12px; color:var(--text-mid); }
+.cost-r { text-align:right; }
+.cost-amt { font-size:13px; font-weight:700; color:var(--text); }
+.cost-pct { font-size:10px; color:var(--text-soft); }
+.prog { height:3px; background:rgba(236,72,153,.08); border-radius:4px; margin-top:4px; width:70px; }
+.prog-fill { height:100%; border-radius:4px; transition:width 1s ease; }
+
+/* ─── TABLE ─── */
+.tbl-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; min-width:380px; }
+th { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); padding:0 8px 10px; text-align:left; font-weight:400; border-bottom:1px solid var(--border); }
+td { padding:11px 8px; font-size:12px; color:var(--text); border-bottom:1px solid rgba(236,72,153,.05); }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(236,72,153,.03); }
+
+.badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:7px; font-size:11px; font-weight:700; }
+.b-v1 { background:rgba(245,158,11,.1); color:#f59e0b; }
+.b-v2 { background:rgba(168,85,247,.1); color:#a855f7; }
+.chip { display:inline-block; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; }
+.chip-g { background:var(--green-dim); color:var(--green); }
+.chip-o { background:var(--gold-dim); color:var(--gold); }
+.chip-r { background:var(--red-dim); color:var(--red); }
+
+/* ─── CASHFLOW GRID ─── */
+.cf-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.cf-card { background:var(--card2); border:1px solid var(--border); border-radius:14px; padding:14px; }
+.cf-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); margin-bottom:5px; }
+.cf-value { font-family:'Inter',sans-serif; font-variant-numeric:tabular-nums; font-size:20px; font-weight:700; }
+
+/* ─── BOTTOM NAV ─── */
+.bnav {
+  position:fixed; bottom:0; left:0; right:0;
+  padding:8px 6px calc(var(--safe-bottom) + 6px);
+  background:rgba(13,10,15,.95);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  display:flex; justify-content:space-around; z-index:50;
+}
+.ntab {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:8px 14px; border-radius:12px; cursor:pointer;
+  border:none; background:transparent; font-family:'Inter',sans-serif;
+  transition:background .2s;
+}
+.ntab.active { background:var(--rose-dim); }
+.ntab .nico { font-size:19px; }
+.ntab .nlbl { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); }
+.ntab.active .nlbl { color:var(--rose); font-weight:700; }
+
+/* ─── SHEET ─── */
+.sheet-ov {
+  position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(10px);
+  display:none; align-items:flex-end;
+}
+.sheet-ov.open { display:flex; }
+.sheet {
+  background:var(--bg2); border-radius:28px 28px 0 0;
+  border:1px solid var(--border); border-bottom:none;
+  padding:24px 20px calc(var(--safe-bottom) + 24px);
+  width:100%; max-height:92dvh; overflow-y:auto;
+  animation:sheetUp .3s cubic-bezier(.32,1,.45,1);
+}
+@keyframes sheetUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.sheet-handle { width:38px; height:4px; background:var(--text-soft); border-radius:2px; margin:0 auto 20px; opacity:.4; }
+.sheet-title { font-family:'Playfair Display',serif; font-size:20px; margin-bottom:4px; }
+.sheet-sub { font-size:11px; color:var(--text-soft); font-style:italic; margin-bottom:22px; }
+
+.section-divider {
+  font-size:9px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--text-soft); margin:18px 0 12px;
+  display:flex; align-items:center; gap:10px;
+}
+.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.save-btn {
+  width:100%; padding:13px; border:none; border-radius:14px;
+  background:linear-gradient(135deg,var(--rose),var(--mauve));
+  color:white; font-size:13px; font-weight:700;
+  font-family:'Inter',sans-serif; cursor:pointer; margin-top:14px;
+  box-shadow:0 6px 24px rgba(236,72,153,.28);
+}
+
+/* ─── LOADING ─── */
+.loading {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; padding:60px 20px; color:var(--text-soft); font-size:13px;
+}
+.spinner {
+  width:36px; height:36px; border-radius:50%;
+  border:2px solid var(--border); border-top-color:var(--rose);
+  animation:spin .8s linear infinite;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SETUP WIZARD (3 étapes)
+══════════════════════════════════════════ -->
+<div id="setup">
+  <div class="setup-card">
+    <div class="setup-logo">MélaWhale ✦</div>
+    <div class="setup-sub">analytics · e-commerce</div>
+
+    <!-- STEP 1 : Shopify -->
+    <div class="setup-step active" id="step1">
+      <div class="step-badge">🛍️ Étape 1 / 3</div>
+      <div class="setup-title">Connecte ta boutique Shopify</div>
+      <div class="setup-desc">Tes commandes seront récupérées directement en temps réel.</div>
+      <div class="hint">
+        📍 Va dans <b>Shopify Admin → Apps → Développer des apps</b><br>
+        Crée une app privée → ajoute les permissions <b>read_orders, read_products</b><br>
+        Copie ton <b>Access Token</b> (commence par <code>shpat_</code>)
+        <br><br>
+        <a href="https://admin.shopify.com/store/TON-STORE/settings/apps/development" target="_blank">→ Ouvrir Shopify Admin</a>
+      </div>
+      <div class="fl">
+        <div>
+          <label class="lbl">Nom de ta boutique (sans .myshopify.com)</label>
+          <input class="inp" id="s-store" placeholder="ma-boutique">
+        </div>
+        <div>
+          <label class="lbl">Shopify Admin API Access Token</label>
+          <input class="inp" id="s-token" placeholder="shpat_xxxxxxxxxxxx" type="password">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="testShopify()">Tester la connexion →</button>
+      <p class="err" id="err1"></p>
+    </div>
+
+    <!-- STEP 2 : Meta Ads -->
+    <div class="setup-step" id="step2">
+      <div class="step-badge">📣 Étape 2 / 3</div>
+      <div class="setup-title">Connecte Meta Ads</div>
+      <div class="setup-desc">Tes dépenses pub Meta (Facebook/Instagram) seront récupérées automatiquement.</div>
+      <div class="hint">
+        📍 Va sur <a href="https://developers.facebook.com/tools/explorer/" target="_blank">developers.facebook.com/tools/explorer</a><br>
+        1. Sélectionne ton app → clique <b>"Generate Access Token"</b><br>
+        2. Ajoute les permissions : <b>ads_read</b> + <b>ads_management</b><br>
+        3. Copie l'<b>Access Token</b> généré<br>
+        4. Récupère ton <b>Ad Account ID</b> dans <a href="https://business.facebook.com/adsmanager" target="_blank">Ads Manager</a> (format : <code>act_123456789</code>)
+      </div>
+      <div class="fl">
+        <div>
+          <label class="lbl">Meta Access Token</label>
+          <input class="inp" id="m-token" placeholder="EAAxxxxxx..." type="password">
+        </div>
+        <div>
+          <label class="lbl">Ad Account ID</label>
+          <input class="inp" id="m-account" placeholder="act_123456789">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="testMeta()">Tester la connexion →</button>
+      <button class="btn-ghost" onclick="skipMeta()">Passer pour l'instant (données pub manuelles)</button>
+      <p class="err" id="err2"></p>
+    </div>
+
+    <!-- STEP 3 : Mot de passe + COGS -->
+    <div class="setup-step" id="step3">
+      <div class="step-badge">✦ Étape 3 / 3</div>
+      <div class="setup-title">Finalise ta config</div>
+      <div class="setup-desc">Choisis ton mot de passe et renseigne tes coûts pour un P&L précis.</div>
+      <div>
+        <label class="lbl">Ton mot de passe dashboard</label>
+        <input class="inp" id="s-pass" type="password" placeholder="Choisis un mot de passe" style="margin-bottom:16px">
+      </div>
+      <div class="fl2">
+        <div>
+          <label class="lbl">COGS variante 1 (€/u)</label>
+          <input class="inp" id="s-c1" placeholder="ex : 8" value="8">
+        </div>
+        <div>
+          <label class="lbl">COGS variante 2 (€/u)</label>
+          <input class="inp" id="s-c2" placeholder="ex : 7" value="7">
+        </div>
+      </div>
+      <div class="fl2">
+        <div>
+          <label class="lbl">Shopify abonnement (€/mois)</label>
+          <input class="inp" id="s-shop" value="79">
+        </div>
+        <div>
+          <label class="lbl">Apps Shopify (€/mois)</label>
+          <input class="inp" id="s-apps" value="30">
+        </div>
+      </div>
+      <div class="fl2">
+        <div>
+          <label class="lbl">Taux TVA (%)</label>
+          <input class="inp" id="s-tva" value="20">
+        </div>
+        <div>
+          <label class="lbl">Impôts/charges (%)</label>
+          <input class="inp" id="s-tax" value="22">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="finishSetup()">🌸 Lancer mon dashboard</button>
+      <p class="err" id="err3"></p>
+    </div>
+
+    <div class="dots">
+      <div class="dot on" id="dot1"></div>
+      <div class="dot" id="dot2"></div>
+      <div class="dot" id="dot3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LOGIN
+══════════════════════════════════════════ -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-logo">MélaWhale ✦</div>
+    <div class="login-tagline">ton dashboard e-commerce</div>
+    <input class="login-inp" type="password" id="l-pass" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-primary" onclick="doLogin()">Entrer 🌸</button>
+    <p class="err" id="lerr"></p>
+    <p style="font-size:10px;color:var(--text-soft);margin-top:16px;cursor:pointer" onclick="resetAll()">Réinitialiser la config</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP
+══════════════════════════════════════════ -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-brand">MélaWhale ✦</div>
+    <div class="hdr-right">
+      <div class="period-sel">
+        📅 <select id="psel" onchange="loadAll()">
+          <option value="1">Aujourd'hui</option>
+          <option value="7" selected>7 jours</option>
+          <option value="30">30 jours</option>
+          <option value="90">90 jours</option>
+        </select>
+      </div>
+      <button class="sync-btn" id="syncBtn" onclick="loadAll()">↻</button>
+    </div>
+  </div>
+
+  <div class="sync-bar" id="syncBar">
+    <span class="dot-live"></span>
+    <span id="syncTxt">Chargement des données...</span>
+  </div>
+
+  <div class="content" id="content">
+    <div class="loading"><div class="spinner"></div>Connexion à Shopify & Meta...</div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bnav" id="bnav" style="display:none">
+  <button class="ntab active" onclick="setTab(this,'general')">
+    <span class="nico">📊</span><span class="nlbl">Général</span>
+  </button>
+  <button class="ntab" onclick="setTab(this,'finance')">
+    <span class="nico">💰</span><span class="nlbl">Finances</span>
+  </button>
+  <button class="ntab" onclick="setTab(this,'pub')">
+    <span class="nico">📣</span><span class="nlbl">Pub</span>
+  </button>
+  <button class="ntab" onclick="setTab(this,'produits')">
+    <span class="nico">🏷️</span><span class="nlbl">Produits</span>
+  </button>
+  <button class="ntab" onclick="setTab(this,'settings')">
+    <span class="nico">⚙️</span><span class="nlbl">Config</span>
+  </button>
+</nav>
+
+<!-- Settings Sheet -->
+<div class="sheet-ov" id="settingsSheet" onclick="sheetClickOut(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Configuration ✦</div>
+    <div class="sheet-sub">Tes coûts réels pour un P&L précis 🌸</div>
+
+    <div class="section-divider">Coûts produits</div>
+    <div class="fl2">
+      <div><label class="lbl">COGS Variante 1 (€/u)</label><input class="inp" id="c-c1" value="8"></div>
+      <div><label class="lbl">COGS Variante 2 (€/u)</label><input class="inp" id="c-c2" value="7"></div>
+    </div>
+
+    <div class="section-divider">Charges fixes mensuelles</div>
+    <div class="fl2">
+      <div><label class="lbl">Shopify (€/mois)</label><input class="inp" id="c-shop" value="79"></div>
+      <div><label class="lbl">Apps (€/mois)</label><input class="inp" id="c-apps" value="30"></div>
+    </div>
+    <div><label class="lbl" style="margin-bottom:5px">Frais divers (packaging, frais bancaires…)</label><input class="inp" id="c-misc" value="50"></div>
+
+    <div class="section-divider">Fiscalité</div>
+    <div class="fl2">
+      <div><label class="lbl">TVA (%)</label><input class="inp" id="c-tva" value="20"></div>
+      <div><label class="lbl">Impôts/charges (%)</label><input class="inp" id="c-tax" value="22"></div>
+    </div>
+
+    <div class="section-divider">Pub manuelle (si Meta non connecté)</div>
+    <div><label class="lbl">Budget pub période (€) — laisser 0 si Meta connecté</label><input class="inp" id="c-ads" value="0"></div>
+
+    <div class="section-divider">Variantes Shopify</div>
+    <div class="hint" style="margin-bottom:10px">
+      Mots-clés exacts de tes variantes dans Shopify (ex: "argent", "noir", "gold"...)
+    </div>
+    <div class="fl2">
+      <div><label class="lbl">Mot-clé variante 1</label><input class="inp" id="c-v1" value="argent"></div>
+      <div><label class="lbl">Mot-clé variante 2</label><input class="inp" id="c-v2" value="noir"></div>
+    </div>
+
+    <button class="save-btn" onclick="saveSettings()">💾 Sauvegarder & recalculer</button>
+    <button class="btn-ghost" style="margin-top:10px" onclick="resetAll()">🗑️ Réinitialiser toute la config</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let CFG = {
+  shopifyStore:'', shopifyToken:'',
+  metaToken:'', metaAccount:'', metaConnected:false,
+  pass:'',
+  cogsV1:8, cogsV2:7, shopify:79, apps:30, misc:50, tva:20, tax:22, adsManual:0,
+  kw1:'argent', kw2:'noir'
+};
+
+let DATA = { shopify:[], meta:null };
+let DEMO = false;
+let currentTab = 'general';
+let chartInst = null;
+
+// ─── PERSIST ───
+function save() { localStorage.setItem('rac', JSON.stringify(CFG)); }
+function load() {
+  const s = localStorage.getItem('rac');
+  if (s) CFG = { ...CFG, ...JSON.parse(s) };
+}
+
+// ─── FORMAT ───
+const fmt = n => new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n||0);
+const fmtDec = (n,d=2) => new Intl.NumberFormat('fr-FR',{maximumFractionDigits:d}).format(n||0);
+
+// ═══════════════════════════════════════════════
+//  SETUP WIZARD
+// ═══════════════════════════════════════════════
+let setupStep = 1;
+
+function goStep(n) {
+  document.querySelectorAll('.setup-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  [1,2,3].forEach(i=>{
+    document.getElementById('dot'+i).classList.toggle('on', i===n);
+  });
+  setupStep = n;
+}
+
+async function testShopify() {
+  const store = document.getElementById('s-store').value.trim();
+  const token = document.getElementById('s-token').value.trim();
+  document.getElementById('err1').textContent = '';
+
+  if (!store || !token) {
+    document.getElementById('err1').textContent = 'Remplis les deux champs ✦';
+    return;
+  }
+
+  // Shopify CORS: we use a proxy approach via a simple fetch
+  // Note: direct Shopify API calls from browser need CORS enabled private app
+  // We'll validate format and store, actual test on first data load
+  if (!token.startsWith('shpat_') && !token.startsWith('shpca_')) {
+    document.getElementById('err1').textContent = 'Le token doit commencer par shpat_ ✦';
+    return;
+  }
+
+  CFG.shopifyStore = store;
+  CFG.shopifyToken = token;
+  save();
+  goStep(2);
+}
+
+async function testMeta() {
+  const token = document.getElementById('m-token').value.trim();
+  const account = document.getElementById('m-account').value.trim();
+  document.getElementById('err2').textContent = 'Test en cours...';
+
+  if (!token || !account) {
+    document.getElementById('err2').textContent = 'Remplis les deux champs ✦';
+    return;
+  }
+
+  try {
+    const accId = account.replace('act_','');
+    const url = `https://graph.facebook.com/v19.0/act_${accId}?fields=name,currency&access_token=${token}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+
+    document.getElementById('err2').textContent = `✅ Connecté : ${d.name} (${d.currency})`;
+    CFG.metaToken = token;
+    CFG.metaAccount = 'act_'+accId;
+    CFG.metaConnected = true;
+    save();
+    setTimeout(()=>goStep(3), 1000);
+  } catch(e) {
+    document.getElementById('err2').textContent = '❌ Erreur: ' + e.message;
+  }
+}
+
+function skipMeta() {
+  CFG.metaConnected = false;
+  save();
+  goStep(3);
+}
+
+function finishSetup() {
+  const pass = document.getElementById('s-pass').value;
+  if (!pass) { document.getElementById('err3').textContent = 'Choisis un mot de passe ✦'; return; }
+
+  CFG.pass = btoa(pass);
+  CFG.cogsV1 = +document.getElementById('s-c1').value||8;
+  CFG.cogsV2 = +document.getElementById('s-c2').value||7;
+  CFG.shopify = +document.getElementById('s-shop').value||79;
+  CFG.apps = +document.getElementById('s-apps').value||30;
+  CFG.tva = +document.getElementById('s-tva').value||20;
+  CFG.tax = +document.getElementById('s-tax').value||22;
+  save();
+
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════
+//  LOGIN
+// ═══════════════════════════════════════════════
+function doLogin() {
+  const pass = document.getElementById('l-pass').value;
+  const ok = DEMO ? pass==='demo' : (CFG.pass && atob(CFG.pass)===pass);
+  if (ok) {
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('bnav').style.display='flex';
+    loadAll();
+  } else {
+    document.getElementById('lerr').textContent = 'Mot de passe incorrect ✦';
+  }
+}
+
+function resetAll() {
+  if (!confirm('Tout réinitialiser ?')) return;
+  localStorage.clear();
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════
+//  DATA FETCHING
+// ═══════════════════════════════════════════════
+async function loadAll() {
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('spin');
+  setSyncBar('loading', 'Chargement en cours...');
+  document.getElementById('content').innerHTML = '<div class="loading"><div class="spinner"></div>Connexion aux APIs...</div>';
+
+  const days = parseInt(document.getElementById('psel').value);
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const sinceStr = since.toISOString();
+
+  const results = await Promise.allSettled([
+    fetchShopify(sinceStr),
+    fetchMeta(days)
+  ]);
+
+  btn.classList.remove('spin');
+
+  const shopOk = results[0].status === 'fulfilled';
+  const metaOk = results[1].status === 'fulfilled';
+
+  if (!shopOk && !DEMO) {
+    setSyncBar('err', '❌ Shopify inaccessible — mode démo activé');
+    DEMO = true;
+    DATA.shopify = generateDemo(days);
+  }
+
+  const metaStatus = CFG.metaConnected ? (metaOk ? '✅ Meta live' : '⚠️ Meta indispo') : '📝 Meta manuel';
+  const now = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  setSyncBar(metaOk||!CFG.metaConnected?'ok':'warn',
+    `Shopify ${DEMO?'(démo)':'live'} · ${metaStatus} · ${now}`);
+
+  renderTab();
+}
+
+async function fetchShopify(since) {
+  // Via Vercel proxy /api/shopify (contourne le CORS)
+  const url = `/api/shopify?since=${since}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Shopify error '+r.status);
+  const d = await r.json();
+  DATA.shopify = d.orders || [];
+}
+
+async function fetchMeta(days) {
+  if (!CFG.metaConnected) { DATA.meta = null; return; }
+
+  const since = new Date();
+  since.setDate(since.getDate()-days);
+  const dateStr = since.toISOString().slice(0,10);
+
+  const url = `/api/meta?account=${CFG.metaAccount}&token=${CFG.metaToken}&since=${dateStr}&until=${new Date().toISOString().slice(0,10)}`;
+  const r = await fetch(url);
+  const d = await r.json();
+  if (d.error) throw new Error(d.error.message);
+
+  const row = d.data && d.data[0];
+  DATA.meta = row ? {
+    spend: parseFloat(row.spend||0),
+    clicks: parseInt(row.clicks||0),
+    impressions: parseInt(row.impressions||0),
+    cpc: parseFloat(row.cpc||0),
+    purchases: (row.actions||[]).find(a=>a.action_type==='purchase')?.value||0
+  } : null;
+}
+
+function generateDemo(days) {
+  const rows = [];
+  const now = new Date();
+  for (let i=days-1;i>=0;i--) {
+    const d = new Date(now); d.setDate(d.getDate()-i);
+    const n = Math.floor(Math.random()*12)+4;
+    for (let j=0;j<n;j++) {
+      const v1 = Math.random()>.4 ? Math.floor(Math.random()*3)+1 : 0;
+      const v2 = Math.random()>.6 ? Math.floor(Math.random()*2)+1 : 0;
+      const total = (v1*34.9 + v2*29.9).toFixed(2);
+      rows.push({
+        created_at: d.toISOString(),
+        processed_at: d.toISOString(),
+        current_subtotal_price: total,
+        line_items: [
+          ...(v1>0?[{title:'Bracelet',variant_title:'Argent',quantity:v1}]:[]),
+          ...(v2>0?[{title:'Bracelet',variant_title:'Noir',quantity:v2}]:[])
+        ]
+      });
+    }
+  }
+  return rows;
+}
+
+// ═══════════════════════════════════════════════
+//  AGGREGATE
+// ═══════════════════════════════════════════════
+function getAgg() {
+  const days = parseInt(document.getElementById('psel').value);
+  const orders = DATA.shopify;
+  const kw1 = (CFG.kw1||'argent').toLowerCase();
+  const kw2 = (CFG.kw2||'noir').toLowerCase();
+
+  let v1=0, v2=0, caTtc=0, ordersCount=orders.length;
+  const dailyCA = {};
+
+  for (const o of orders) {
+    const montant = parseFloat(o.current_subtotal_price||o.subtotal_price||o.total_price||0);
+    caTtc += montant;
+    const date = (o.processed_at||o.created_at).slice(0,10);
+    dailyCA[date] = (dailyCA[date]||0) + montant;
+
+    for (const li of (o.line_items||[])) {
+      const ft = ((li.title||'')+' '+(li.variant_title||'')).toLowerCase();
+      const qty = parseInt(li.quantity||1);
+      if (ft.includes(kw1)) v1+=qty;
+      else if (ft.includes(kw2)) v2+=qty;
+      else v1+=qty; // fallback
+    }
+  }
+
+  const caHt = caTtc/(1+CFG.tva/100);
+  const cogs = v1*CFG.cogsV1 + v2*CFG.cogsV2;
+  const shopifyPro = (CFG.shopify+CFG.apps)*days/30;
+  const misc = CFG.misc || 0;
+  const fixed = shopifyPro + misc;
+
+  // Meta ads spend
+  const adSpend = CFG.metaConnected && DATA.meta
+    ? DATA.meta.spend
+    : (CFG.adsManual||0);
+
+  const grossProfit = caHt - cogs;
+  const ebitda = grossProfit - adSpend - fixed;
+  const tax = ebitda>0 ? ebitda*(CFG.tax/100) : 0;
+  const netProfit = ebitda - tax;
+  const roas = adSpend>0 ? caTtc/adSpend : null;
+  const tvaAmount = caTtc - caHt;
+  const aov = ordersCount>0 ? caTtc/ordersCount : 0;
+  const cpa = adSpend>0 && ordersCount>0 ? adSpend/ordersCount : null;
+
+  // Daily series
+  const sortedDates = Object.keys(dailyCA).sort();
+  const dailySeries = sortedDates.map(d=>({ date:d.slice(5), ca:dailyCA[d] }));
+
+  // Meta extras
+  const metaClicks = DATA.meta?.clicks||0;
+  const metaImpressions = DATA.meta?.impressions||0;
+  const metaCPC = DATA.meta?.cpc||0;
+
+  return {
+    v1, v2, caTtc, caHt, cogs, shopifyPro, misc, fixed, adSpend, grossProfit,
+    ebitda, tax, netProfit, roas, tvaAmount, aov, ordersCount, cpa, days,
+    dailySeries, metaClicks, metaImpressions, metaCPC, tvaAmount
+  };
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER TABS
+// ═══════════════════════════════════════════════
+function renderTab() {
+  const d = getAgg();
+  const content = document.getElementById('content');
+
+  if (currentTab==='general') content.innerHTML = renderGeneral(d);
+  else if (currentTab==='finance') content.innerHTML = renderFinance(d);
+  else if (currentTab==='pub') content.innerHTML = renderPub(d);
+  else if (currentTab==='produits') content.innerHTML = renderProduits(d);
+
+  if (currentTab!=='settings') initChart(d);
+}
+
+// ─── TAB : GÉNÉRAL ───
+function renderGeneral(d) {
+  const roas = d.roas ? fmtDec(d.roas,2)+'x' : 'N/A';
+  const roasClass = d.roas>=3?'up':d.roas>=2?'neu':'down';
+  const marginPct = d.caHt>0?((d.netProfit/d.caHt)*100).toFixed(1):0;
+  const metaTag = CFG.metaConnected && DATA.meta ? 'META LIVE' : 'META MANUEL';
+  const metaSrc = CFG.metaConnected && DATA.meta ? 'src-meta' : 'src-calc';
+
+  return `
+  <div class="alert">💡 <span>
+    ${d.roas ? `ROAS à <b>${fmtDec(d.roas,2)}x</b> · ` : ''}
+    CA de <b>${fmt(d.caTtc)}</b> sur ${d.days}j ·
+    ${d.ordersCount} commandes · Bénéfice <b>${fmt(d.netProfit)}</b>
+  </span></div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-source src-shopify">SHOPIFY LIVE</div>
+      <div class="kpi-label">CA BRUT TTC</div>
+      <div class="kpi-value big">${fmt(d.caTtc)}</div>
+      <div class="kpi-meta"><span class="up">↑</span> ${d.ordersCount} commandes</div>
+      <div class="kpi-glow">💎</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source ${metaSrc}">${metaTag}</div>
+      <div class="kpi-label">AD SPEND</div>
+      <div class="kpi-value big">${fmt(d.adSpend)}</div>
+      <div class="kpi-meta">${d.cpa?`CPA : <b>${fmt(d.cpa)}</b>`:CFG.metaConnected?'Chargement...':'Saisie manuelle'}</div>
+      <div class="kpi-glow">📣</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-calc">CALCULÉ</div>
+      <div class="kpi-label">BLENDED ROAS</div>
+      <div class="kpi-value big">${roas}</div>
+      <div class="kpi-meta">Cible 2.5x : <span class="${d.roas>=2.5?'up':'down'}">${d.roas>=2.5?'✓ atteinte':'✗ non atteinte'}</span></div>
+      <div class="kpi-glow">🎯</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-calc">CALCULÉ</div>
+      <div class="kpi-label">BÉNÉFICE NET</div>
+      <div class="kpi-value big">${fmt(d.netProfit)}</div>
+      <div class="kpi-meta">${marginPct}% marge</div>
+      <div class="kpi-glow">✨</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-shopify">SHOPIFY</div>
+      <div class="kpi-label">COMMANDES</div>
+      <div class="kpi-value">${d.ordersCount}</div>
+      <div class="kpi-meta">Moy. ${d.days>0?(d.ordersCount/d.days).toFixed(1):0}/j</div>
+      <div class="kpi-glow">🛍️</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-calc">CALCULÉ</div>
+      <div class="kpi-label">COGS</div>
+      <div class="kpi-value">${fmt(d.cogs)}</div>
+      <div class="kpi-meta">${d.caHt>0?((d.cogs/d.caHt)*100).toFixed(1):0}% du CA HT</div>
+      <div class="kpi-glow">📦</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-shopify">SHOPIFY</div>
+      <div class="kpi-label">AOV</div>
+      <div class="kpi-value">${fmt(d.aov)}</div>
+      <div class="kpi-meta">Panier moyen</div>
+      <div class="kpi-glow">💳</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-calc">CALCULÉ</div>
+      <div class="kpi-label">FRAIS FIX.</div>
+      <div class="kpi-value">${fmt(d.fixed)}</div>
+      <div class="kpi-meta">${d.caHt>0?((d.fixed/d.caHt)*100).toFixed(1):0}% du CA HT</div>
+      <div class="kpi-glow">🏷️</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-tabs">
+      <button class="ctab active" onclick="sw(this,'ca')"><span class="ctab-dot" style="background:#ec4899"></span>CA</button>
+      <button class="ctab" onclick="sw(this,'adspend')"><span class="ctab-dot" style="background:#4a9af4"></span>Ad Spend</button>
+      <button class="ctab" onclick="sw(this,'profit')"><span class="ctab-dot" style="background:#10b981"></span>Bénéfice</button>
+      <button class="ctab" onclick="sw(this,'roas')"><span class="ctab-dot" style="background:#f59e0b"></span>ROAS</button>
+      <button class="ctab" onclick="sw(this,'orders')"><span class="ctab-dot" style="background:#a855f7"></span>Commandes</button>
+    </div>
+    <canvas id="mainChart"></canvas>
+  </div>`;
+}
+
+// ─── TAB : FINANCES ───
+function renderFinance(d) {
+  const marginPct = d.caHt>0?((d.netProfit/d.caHt)*100).toFixed(1):0;
+  const grossPct = d.caHt>0?((d.grossProfit/d.caHt)*100).toFixed(1):0;
+  const costs = [
+    {n:'Ad Spend',c:'#ec4899',a:d.adSpend},
+    {n:'COGS produits',c:'#f59e0b',a:d.cogs},
+    {n:'TVA collectée',c:'#a855f7',a:d.tvaAmount},
+    {n:'Impôts/charges',c:'#7c3aed',a:d.tax},
+    {n:'Shopify + Apps',c:'#f472b6',a:d.shopifyPro},
+    {n:'Frais divers',c:'#6b7280',a:d.misc},
+  ];
+  const totalCosts = costs.reduce((s,c)=>s+c.a,0);
+  const costRows = costs.map(c=>{
+    const pct = totalCosts>0?((c.a/totalCosts)*100).toFixed(0):0;
+    return `<div class="cost-row">
+      <div class="cost-l"><div class="cost-dot" style="background:${c.c}"></div><div class="cost-name">${c.n}</div></div>
+      <div class="cost-r">
+        <div class="cost-amt">${fmt(c.a)}</div>
+        <div class="cost-pct">${pct}%</div>
+        <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${c.c}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="pl-hero">
+    <div class="pl-tag">✦ Compte de résultat · ${d.days} derniers jours</div>
+    <div class="pl-amount">${fmt(d.netProfit)}</div>
+    <div class="pl-margin">Marge nette : <b>${marginPct}%</b> · Marge brute : <b>${grossPct}%</b></div>
+    <div class="pl-cells">
+      <div class="pl-cell"><div class="pl-cell-lbl">CA HT</div><div class="pl-cell-val">${fmt(d.caHt)}</div></div>
+      <div class="pl-cell"><div class="pl-cell-lbl">Ad Spend</div><div class="pl-cell-val">${fmt(d.adSpend)}</div></div>
+      <div class="pl-cell"><div class="pl-cell-lbl">COGS</div><div class="pl-cell-val">${fmt(d.cogs)}</div></div>
+      <div class="pl-cell"><div class="pl-cell-lbl">Charges fixes</div><div class="pl-cell-val">${fmt(d.fixed)}</div></div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-tabs">
+      <button class="ctab active" onclick="sw(this,'ca')"><span class="ctab-dot" style="background:#ec4899"></span>CA</button>
+      <button class="ctab" onclick="sw(this,'profit')"><span class="ctab-dot" style="background:#10b981"></span>Bénéfice</button>
+    </div>
+    <canvas id="mainChart"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <div class="sec-title">Décomposition <em>des coûts</em></div>
+    <div>${costRows}</div>
+  </div>
+
+  <div>
+    <div class="sec-title">Métriques <em>clés</em></div>
+    <div class="cf-grid">
+      ${[
+        {l:'CA HT', v:fmt(d.caHt)},
+        {l:'TVA collectée', v:fmt(d.tvaAmount)},
+        {l:'Marge brute', v:grossPct+'%'},
+        {l:'EBITDA', v:fmt(d.ebitda)},
+        {l:'Impôts estimés', v:fmt(d.tax)},
+        {l:'Résultat net', v:fmt(d.netProfit)},
+      ].map(m=>`<div class="cf-card">
+        <div class="cf-label">${m.l}</div>
+        <div class="cf-value">${m.v}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ─── TAB : PUB ───
+function renderPub(d) {
+  const roas = d.roas?fmtDec(d.roas,2)+'x':'N/A';
+  const roasColor = d.roas>=3?'var(--green)':d.roas>=2?'var(--gold)':'var(--red)';
+  const metaLive = CFG.metaConnected && DATA.meta;
+
+  return `
+  ${metaLive ? '' : `<div class="alert">⚠️ <span>Meta Ads non connecté. Ajoute tes tokens dans la config ou saisie le budget manuellement dans <b>⚙️ Config → Pub manuelle</b>.</span></div>`}
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-source ${metaLive?'src-meta':'src-calc'}">${metaLive?'META LIVE':'MANUEL'}</div>
+      <div class="kpi-label">AD SPEND</div>
+      <div class="kpi-value big">${fmt(d.adSpend)}</div>
+      <div class="kpi-meta">sur ${d.days} jours</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-calc">CALCULÉ</div>
+      <div class="kpi-label">BLENDED ROAS</div>
+      <div class="kpi-value big" style="color:${roasColor}">${roas}</div>
+      <div class="kpi-meta">pour 1€ investi</div>
+    </div>
+    ${metaLive ? `
+    <div class="kpi">
+      <div class="kpi-source src-meta">META LIVE</div>
+      <div class="kpi-label">CLICS</div>
+      <div class="kpi-value">${fmtDec(d.metaClicks,0)}</div>
+      <div class="kpi-meta">CPC : ${fmt(d.metaCPC)}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-meta">META LIVE</div>
+      <div class="kpi-label">IMPRESSIONS</div>
+      <div class="kpi-value">${(d.metaImpressions/1000).toFixed(1)}k</div>
+      <div class="kpi-meta">CPM : ${fmt(d.metaImpressions>0?(d.adSpend/d.metaImpressions*1000):0)}</div>
+    </div>` : ''}
+    <div class="kpi">
+      <div class="kpi-source src-calc">CALCULÉ</div>
+      <div class="kpi-label">CPA</div>
+      <div class="kpi-value">${d.cpa?fmt(d.cpa):'N/A'}</div>
+      <div class="kpi-meta">coût par commande</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-source src-calc">CALCULÉ</div>
+      <div class="kpi-label">CA GÉNÉRÉ / PUB</div>
+      <div class="kpi-value">${d.adSpend>0?fmt(d.caTtc/d.adSpend*100)+'%':'-'}</div>
+      <div class="kpi-meta">retour sur chaque €</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-tabs">
+      <button class="ctab active" onclick="sw(this,'ca')"><span class="ctab-dot" style="background:#ec4899"></span>CA</button>
+      <button class="ctab" onclick="sw(this,'roas')"><span class="ctab-dot" style="background:#f59e0b"></span>ROAS</button>
+    </div>
+    <canvas id="mainChart"></canvas>
+  </div>`;
+}
+
+// ─── TAB : PRODUITS ───
+function renderProduits(d) {
+  const rows = [
+    {lbl:CFG.kw1||'Variante 1', icon:'✦', qty:d.v1, ca:d.v1*34.9, cogs:d.v1*CFG.cogsV1, bc:'b-v1'},
+    {lbl:CFG.kw2||'Variante 2', icon:'◆', qty:d.v2, ca:d.v2*29.9, cogs:d.v2*CFG.cogsV2, bc:'b-v2'},
+  ].map(r=>{
+    const marge = r.ca>0?((r.ca-r.cogs)/r.ca*100).toFixed(0):0;
+    const skuRoas = d.adSpend>0 && d.caTtc>0 ? (d.roas*(r.ca/d.caTtc)).toFixed(1) : '–';
+    const rc = parseFloat(skuRoas)>=3?'chip-g':parseFloat(skuRoas)>=2?'chip-o':'chip-r';
+    return `<tr>
+      <td><span class="badge ${r.bc}">${r.icon} ${r.lbl}</span></td>
+      <td>${r.qty}</td>
+      <td>${fmt(r.ca)}</td>
+      <td>${fmt(r.cogs)}</td>
+      <td>${marge}%</td>
+      <td><span class="chip ${rc}">${skuRoas}x</span></td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="chart-card">
+    <div class="chart-tabs">
+      <button class="ctab active" onclick="sw(this,'orders')"><span class="ctab-dot" style="background:#a855f7"></span>Commandes</button>
+      <button class="ctab" onclick="sw(this,'ca')"><span class="ctab-dot" style="background:#ec4899"></span>CA</button>
+    </div>
+    <canvas id="mainChart"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <div class="sec-title">Détail par <em>variante</em></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Variante</th><th>Qté</th><th>CA</th><th>COGS</th><th>Marge</th><th>ROAS</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cf-grid">
+    <div class="cf-card">
+      <div class="cf-label">Unités ${CFG.kw1||'V1'}</div>
+      <div class="cf-value">${d.v1}</div>
+    </div>
+    <div class="cf-card">
+      <div class="cf-label">Unités ${CFG.kw2||'V2'}</div>
+      <div class="cf-value">${d.v2}</div>
+    </div>
+    <div class="cf-card">
+      <div class="cf-label">Total unités</div>
+      <div class="cf-value">${d.v1+d.v2}</div>
+    </div>
+    <div class="cf-card">
+      <div class="cf-label">AOV</div>
+      <div class="cf-value">${fmt(d.aov)}</div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  CHART
+// ═══════════════════════════════════════════════
+function initChart(d) {
+  const ctx = document.getElementById('mainChart');
+  if (!ctx) return;
+  if (chartInst) { chartInst.destroy(); chartInst=null; }
+  if (!d.dailySeries.length) return;
+
+  const grad = ctx.getContext('2d').createLinearGradient(0,0,0,170);
+  grad.addColorStop(0,'rgba(236,72,153,0.2)');
+  grad.addColorStop(1,'rgba(236,72,153,0)');
+
+  chartInst = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: d.dailySeries.map(r=>r.date),
+      datasets:[{
+        data: d.dailySeries.map(r=>r.ca),
+        borderColor:'#ec4899', backgroundColor:grad,
+        borderWidth:2, pointBackgroundColor:'#ec4899',
+        pointRadius:2, pointHoverRadius:5,
+        fill:true, tension:0.4,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(236,72,153,.05)'},ticks:{color:'#5c4068',font:{size:10},fontFamily:'Inter'}},
+        y:{grid:{color:'rgba(236,72,153,.05)'},ticks:{color:'#5c4068',font:{size:10},callback:v=>v+'€'}}
+      }
+    }
+  });
+}
+
+function sw(el, metric) {
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if (!chartInst) return;
+
+  const d = getAgg();
+  const cfgs = {
+    ca:     {data:d.dailySeries.map(r=>r.ca),      color:'#ec4899', sfx:'€'},
+    adspend:{data:d.dailySeries.map(()=>d.adSpend/Math.max(d.days,1)), color:'#4a9af4', sfx:'€'},
+    profit: {data:d.dailySeries.map(r=>r.ca*0.18), color:'#10b981', sfx:'€'},
+    roas:   {data:d.dailySeries.map(r=>d.adSpend>0?(r.ca/(d.adSpend/Math.max(d.days,1))).toFixed(2):0), color:'#f59e0b', sfx:'x'},
+    orders: {data:d.dailySeries.map(()=>Math.round(d.ordersCount/Math.max(d.days,1))), color:'#a855f7', sfx:''},
+  };
+  const c = cfgs[metric];
+  if (!c) return;
+
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,170);
+  grad.addColorStop(0,c.color+'33'); grad.addColorStop(1,c.color+'00');
+
+  chartInst.data.datasets[0].data = c.data;
+  chartInst.data.datasets[0].borderColor = c.color;
+  chartInst.data.datasets[0].pointBackgroundColor = c.color;
+  chartInst.data.datasets[0].backgroundColor = grad;
+  chartInst.options.scales.y.ticks.callback = v=>v+c.sfx;
+  chartInst.update();
+}
+
+// ═══════════════════════════════════════════════
+//  NAV & SETTINGS
+// ═══════════════════════════════════════════════
+function setTab(el, tab) {
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if (tab==='settings') { openSheet(); return; }
+  currentTab = tab;
+  renderTab();
+}
+
+function openSheet() {
+  // Populate
+  document.getElementById('c-c1').value = CFG.cogsV1;
+  document.getElementById('c-c2').value = CFG.cogsV2;
+  document.getElementById('c-shop').value = CFG.shopify;
+  document.getElementById('c-apps').value = CFG.apps;
+  document.getElementById('c-misc').value = CFG.misc||0;
+  document.getElementById('c-tva').value = CFG.tva;
+  document.getElementById('c-tax').value = CFG.tax;
+  document.getElementById('c-ads').value = CFG.adsManual||0;
+  document.getElementById('c-v1').value = CFG.kw1||'argent';
+  document.getElementById('c-v2').value = CFG.kw2||'noir';
+  document.getElementById('settingsSheet').classList.add('open');
+}
+
+function sheetClickOut(e) {
+  if (e.target===document.getElementById('settingsSheet')) {
+    document.getElementById('settingsSheet').classList.remove('open');
+    document.querySelectorAll('.ntab').forEach((t,i)=>{t.classList.toggle('active',i===0);});
+    currentTab='general'; renderTab();
+  }
+}
+
+function saveSettings() {
+  CFG.cogsV1 = +document.getElementById('c-c1').value||8;
+  CFG.cogsV2 = +document.getElementById('c-c2').value||7;
+  CFG.shopify = +document.getElementById('c-shop').value||79;
+  CFG.apps    = +document.getElementById('c-apps').value||0;
+  CFG.misc    = +document.getElementById('c-misc').value||0;
+  CFG.tva     = +document.getElementById('c-tva').value||20;
+  CFG.tax     = +document.getElementById('c-tax').value||0;
+  CFG.adsManual = +document.getElementById('c-ads').value||0;
+  CFG.kw1     = document.getElementById('c-v1').value||'argent';
+  CFG.kw2     = document.getElementById('c-v2').value||'noir';
+  save();
+  document.getElementById('settingsSheet').classList.remove('open');
+  document.querySelectorAll('.ntab').forEach((t,i)=>{t.classList.toggle('active',i===0);});
+  currentTab='general'; renderTab();
+}
+
+// ─── SYNC BAR ───
+function setSyncBar(type, msg) {
+  const bar = document.getElementById('syncBar');
+  const dot = type==='ok'?'<span class="dot-live"></span>'
+             :type==='warn'?'<span class="dot-warn"></span>'
+             :'<span class="dot-err"></span>';
+  bar.innerHTML = `${dot}<span id="syncTxt">${msg}</span>`;
+}
+
+// ═══════════════════════════════════════════════
+//  STARTUP
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', ()=>{
+  load();
+  const isConfigured = CFG.shopifyStore && CFG.pass;
+
+  if (!isConfigured) {
+    // Check if demo mode
+    const params = new URLSearchParams(location.search);
+    if (params.get('demo')==='1') {
+      DEMO = true;
+      CFG.pass = btoa('demo');
+      document.getElementById('setup').style.display='none';
+      document.getElementById('login').style.display='flex';
+      return;
+    }
+    document.getElementById('setup').style.display='flex';
+    document.getElementById('login').style.display='none';
+  } else {
+    document.getElementById('setup').style.display='none';
+    document.getElementById('login').style.display='flex';
+  }
+});
+</script>
+</body>
+</html>
